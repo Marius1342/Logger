@@ -76,6 +76,8 @@ namespace LoggerSystem.FileManagement
                     return "Warning";
                 case Levels.Error:
                     return "Error";
+                case Levels.Debug:
+                    return "Debug";
                 default:
                     return "Unknown";
             }

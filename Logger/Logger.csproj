@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleSystem\ConsoleHelper.cs" />
+    <Compile Include="DebugLevels.cs" />
     <Compile Include="FileManagement\FileManager.cs" />
     <Compile Include="Levels.cs" />
     <Compile Include="Logger.cs" />

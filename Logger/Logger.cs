@@ -1,6 +1,7 @@
 ﻿using LoggerSystem;
 using LoggerSystem.FileManagement;
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -94,6 +95,26 @@ namespace LoggerSystem
                 FileManagement.FileManager.WriteToFile(message, Levels.None);
             }
         }
+
+        /// <summary>
+        /// Write a message to the console and also saves to a file, if the program is in debug, then it shows on the debug console 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="category"></param>
+        /// <param name="level"></param>
+        public static void Debug(string message, DebugLogLevel level = DebugLogLevel.Debug, string category = "common")
+        {
+            if (init == false)
+            {
+                return;
+            }
+            if (Levels.None >= minLogLevel)
+            {
+                FileManagement.FileManager.WriteToFile(message, Levels.Debug);
+                Debugger.Log((int)level, category,message);
+            }
+        }
+
         /// <summary>
         /// Write a message to the console and also saves to a file
         /// </summary>
@@ -158,6 +179,27 @@ namespace LoggerSystem
             }
             return Task.CompletedTask;
         }
+
+        /// <summary>
+        /// Write a message to the console and also saves to a file, if the program is in debug, then it shows on the debug console 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="category"></param>
+        /// <param name="level"></param>
+        public static Task DebugAsync(string message, DebugLogLevel level = DebugLogLevel.Debug, string category = "common")
+        {
+            if (init == false)
+            {
+                return Task.CompletedTask;
+            }
+            if (Levels.None >= minLogLevel)
+            {
+                FileManagement.FileManager.WriteToFile(message, Levels.Debug);
+                Debugger.Log((int)level, category, message);
+            }
+            return Task.CompletedTask;
+        }
+
         /// <summary>
         /// Call this function when the app closes 
         /// </summary>

@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 
 namespace LoggerSystem
 {
-    public enum Levels
+    public enum DebugLogLevel
     {
-        None,
-        Log,
-        Warning,
-        Error,
-        Debug
 
-    }
+        Fatal = 1,
+        Error,
+        Warning,
+        Info,
+        Debug,
+        Trace,
+    };
+
 }
