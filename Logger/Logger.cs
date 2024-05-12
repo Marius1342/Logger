@@ -25,6 +25,15 @@ namespace LoggerSystem
             worker.Start();
             FileManager.DeleteOldFiles();
         }
+        public static void Init(string IP, int Port)
+        {
+            FileManagement.FileManager.OpenLogFile();
+            init = true;
+            worker = new Thread(SaveToFile);
+            worker.Name = "WokerSaver";
+            worker.Start();
+            FileManager.DeleteOldFiles();
+        }
 
         public static void SaveToFile()
         {

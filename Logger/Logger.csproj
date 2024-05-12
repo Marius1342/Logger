@@ -46,10 +46,11 @@
     <Compile Include="FileManagement\FileManager.cs" />
     <Compile Include="Levels.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="Network\Client.cs" />
+    <Compile Include="Network\PacketV1.cs" />
+    <Compile Include="Network\Serializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Network\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

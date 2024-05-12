@@ -1,4 +1,4 @@
-﻿using LoggerSystem;
+﻿using static LoggerSystem.Logger;
 
 
 namespace LoggerServer
@@ -9,8 +9,7 @@ namespace LoggerServer
 
         static void Main(string[] args)
         {
-
-            Logger.Init();
+            LoggerSystem.Logger.Init();
 
 
 
@@ -28,7 +27,7 @@ namespace LoggerServer
                     Port = int.Parse(args[0]);
                 }catch
                 {
-                    Logger.Error($"System: Error with port to phrase");
+                    LoggerSystem.Logger.Error($"System: Error with port to phrase");
                 }
             }
 

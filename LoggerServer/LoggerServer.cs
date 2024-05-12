@@ -54,11 +54,15 @@ namespace LoggerServer
             if(memoryStream.Length > 0) {
                 PacketV1 packetV1 = Serializer.ToPacket(memoryStream);
 
+                switch(packetV1.Level)
+                {
+
+                }
 
             }
             else
             {
-                Logger.Error("System: Empty data");
+                LoggerSystem.Logger.Error("System: Empty data");
             }
 
             

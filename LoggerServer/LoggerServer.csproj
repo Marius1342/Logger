@@ -11,7 +11,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Logger\Logger.csproj" />
-    <ProjectReference Include="..\NetworkingLogger\NetworkingLogger.csproj" />
   </ItemGroup>
 
 </Project>

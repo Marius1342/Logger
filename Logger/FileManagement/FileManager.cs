@@ -8,6 +8,8 @@ namespace LoggerSystem.FileManagement
     {
         public static FileStream logFile;
         public static object logFileLock = new object();
+        public static string IP;
+        public static int Port;
         public static int writtenLines
         {
             get; private set;
@@ -39,6 +41,15 @@ namespace LoggerSystem.FileManagement
             string log = $"[{LevelToMessage(level)}] {time}: {message}";
 
             ConsoleHelper.WriteToConsole(log, level);
+
+            //Only use the Server
+            if(IP != null)
+            {
+
+                
+                return;
+            }
+
 
             if (logFile == null)
             {
