@@ -1,7 +1,9 @@
 ﻿using LoggerSystem;
+using LoggerSystem.ConsoleSystem;
 using LoggerSystem.FileManagement;
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,6 +17,10 @@ namespace LoggerSystem
         /// </summary>
         public static int maxSaveDays = 2;
         private static bool init = false;
+        private static bool network = false;
+        public static string ip { get; internal set; }
+        public static int port { get; internal set; }
+        public static string token { get; internal set; }
         private static Thread worker = null;
         public static void Init()
         {
@@ -33,6 +39,20 @@ namespace LoggerSystem
             worker.Name = "WokerSaver";
             worker.Start();
             FileManager.DeleteOldFiles();
+
+        }
+
+        public static void Init(string Token, string IP, int Port)
+        {
+            init = true;
+            worker = new Thread(SaveToFile);
+            worker.Name = "WokerSaver";
+            worker.Start();
+            token = Token;
+            ip = IP;
+            port = Port;
+            init = true;
+            FileManagement.FileManager.Init();
         }
 
         public static void SaveToFile()
@@ -120,7 +140,7 @@ namespace LoggerSystem
             if (Levels.None >= minLogLevel)
             {
                 FileManagement.FileManager.WriteToFile(message, Levels.Debug);
-                Debugger.Log((int)level, category,message);
+                Debugger.Log((int)level, category, message);
             }
         }
 
@@ -214,8 +234,14 @@ namespace LoggerSystem
         /// </summary>
         public static void Close()
         {
+            FileManagement.FileManager.Close();
+
             init = false;
-            worker.Abort();
+            if (worker != null)
+            {
+                worker.Abort();
+            }
+
             FileManager.Dispose();
         }
     }

@@ -32,25 +32,23 @@ namespace NetworkingLogger
         {
             PacketV1 packetV1;
             IFormatter formatter = new BinaryFormatter();
-
-            using (MemoryStream ms = new MemoryStream())
+            packet.Position = 0;
+            try
             {
-                try
-                {
-                    packetV1 = (PacketV1)formatter.Deserialize(packet);
-                }
-                catch 
-                {
-                    Logger.Error("System: Error with obj to serialize");
-                    return new PacketV1()
-                    {
-                        UUId = "0",
-                        Message = "Error with obj to serialize",
-                        Level = Levels.Error
-                    };
-                }
-                
+                packetV1 = (PacketV1)formatter.Deserialize(packet);
             }
+            catch (Exception ex)
+            {
+                LoggerSystem.Logger.Error($"System: Error with obj to serialize: {ex.Message}: {ex.InnerException}");
+                return new PacketV1()
+                {
+                    Token = "0",
+                    Message = "Error with obj to serialize",
+                    Level = Levels.Error
+                };
+            }
+
+
 
             return packetV1;
         }

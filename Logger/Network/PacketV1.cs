@@ -12,7 +12,7 @@ namespace NetworkingLogger
     {
         public string Message { get; set; }
         public Levels Level { get; set; }
-        public string UUId {  get; set; }
+        public string Token {  get; set; }
 
 
     }

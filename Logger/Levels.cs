@@ -8,11 +8,12 @@ namespace LoggerSystem
 {
     public enum Levels
     {
-        None,
-        Log,
-        Warning,
-        Error,
-        Debug
+        None = -100,
+        Log = 0,
+        Warning = 1,
+        Error = 2,
+        Debug = 3,
+        Info = 4,
 
     }
 }

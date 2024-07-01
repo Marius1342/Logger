@@ -1,5 +1,8 @@
 ﻿using static LoggerSystem.Logger;
-
+using System.IO;
+using System.Security.Authentication;
+using System.Security.Cryptography;
+using LoggerSystem;
 
 namespace LoggerServer
 {
@@ -11,28 +14,47 @@ namespace LoggerServer
         {
             LoggerSystem.Logger.Init();
 
-
-
-            if(args.Length > 0)
+            if (File.Exists("./conf.txt") == false)
             {
-                if (args[0] == "add-client")
+                Console.WriteLine("Create config file for client ids");
+                File.Create("./conf.txt");
+            }
+
+
+            if (args.Length > 0)
+            {
+                if (args[0] == "add-client" && args.Length > 1)
                 {
+                    
+                    string guid;
+                    //Ensure only one guid for one client
+                    while (true)
+                    {
+                        //Get Random guid
+                        guid = Guid.NewGuid().ToString();
 
-
-                    return; 
+                        if (File.OpenText("./conf.txt").ToString().Contains(guid) == false)
+                        {
+                            File.AppendAllLines("./conf.txt", new string[] { $"{args[1]}=" + guid });
+                            break;
+                        }
+                    }
+                    Console.WriteLine("GUID: " + guid);
+                    return;
                 }
 
                 try
                 {
                     Port = int.Parse(args[0]);
-                }catch
+                }
+                catch
                 {
                     LoggerSystem.Logger.Error($"System: Error with port to phrase");
                 }
             }
 
-
-            
+            LoggerServer loggerServer = new LoggerServer(27);
+            loggerServer.Listen();
 
 
         }

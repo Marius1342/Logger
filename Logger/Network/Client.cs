@@ -27,7 +27,7 @@ namespace Logger.Network
             {
                 Level = levels,
                 Message = msg,
-                UUId = this.Token,
+                Token = this.Token,
             };
 
             byte[] arr = Serializer.ToByteArray(packetV1);
