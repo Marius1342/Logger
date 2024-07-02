@@ -18,9 +18,17 @@ namespace LoggerServer
         {
             Port = port;
             Listener = new TcpListener(System.Net.IPAddress.Any, Port);
-            foreach (var line in File.ReadAllLines("./conf.txt"))
+
+            //When new conf.txt is gen. then throws error
+            try
             {
-                Systems.Add(line.Split('=')[1], line.Split('=')[0]);
+                foreach (var line in File.ReadAllLines("./conf.txt"))
+                {
+                    Systems.Add(line.Split('=')[1], line.Split('=')[0]);
+                }
+            }
+            catch (Exception ex)
+            {
             }
             Task.Delay(2000);
         }
@@ -131,7 +139,8 @@ namespace LoggerServer
                 }
                 else
                 {
-                    LoggerSystem.Logger.Error("System: Empty data");
+                    Console.WriteLine("System: Empty data");
+                    tcpClient.Close();
                 }
 
             }

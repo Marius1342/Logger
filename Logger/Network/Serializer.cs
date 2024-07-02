@@ -7,6 +7,9 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json;
+using System.Runtime.Remoting.Contexts;
+using System.Text.Json.Serialization.Metadata;
 
 namespace NetworkingLogger
 {
@@ -16,23 +19,30 @@ namespace NetworkingLogger
         {
             byte[] bytes;
 
-            IFormatter formatter = new BinaryFormatter();
+            //Unsafe
+            /* IFormatter formatter = new BinaryFormatter();
 
-            using (MemoryStream ms = new MemoryStream())
-            {
-                formatter.Serialize(ms, packet);
-                bytes = ms.ToArray();
-            }
+             using (MemoryStream ms = new MemoryStream())
+             {
+                 formatter.Serialize(ms, packet);
+                 bytes = ms.ToArray();
+             }*/
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string data = JsonSerializer.Serialize<PacketV1>(packet, options);
 
+            bytes = Encoding.UTF8.GetBytes(data);
 
             return bytes;
         }
 
         public static PacketV1 ToPacket(MemoryStream packet)
         {
-            PacketV1 packetV1;
-            IFormatter formatter = new BinaryFormatter();
+            
             packet.Position = 0;
+            PacketV1 packetV1;
+            //Unsafe
+            /*IFormatter formatter = new BinaryFormatter();
+            
             try
             {
                 packetV1 = (PacketV1)formatter.Deserialize(packet);
@@ -46,9 +56,11 @@ namespace NetworkingLogger
                     Message = "Error with obj to serialize",
                     Level = Levels.Error
                 };
-            }
+            }*/
 
+            string dataJson = Encoding.UTF8.GetString(packet.ToArray());
 
+            packetV1 = (PacketV1)JsonSerializer.Deserialize<PacketV1>(dataJson);
 
             return packetV1;
         }
