@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 namespace LoggerSystem.FileManagement
 {
     public class FileManager
@@ -39,6 +40,10 @@ namespace LoggerSystem.FileManagement
 
         }
 
+        /// <summary>
+        /// Await this task, if you want enshure, that client is connected 
+        /// </summary>
+        /// <returns></returns>
         public static void Init()
         {
             tcpClient = new TcpClient();
@@ -57,6 +62,7 @@ namespace LoggerSystem.FileManagement
 
             sender = new Thread(Sender);
             sender.Start();
+
         }
 
         private static void Sender()
@@ -138,8 +144,11 @@ namespace LoggerSystem.FileManagement
                 {
                     packetV1s.Add(packetV1);
                 }
-
-                return;
+                if ( tcpClient != null && tcpClient.Connected)
+                {
+                    return;
+                }
+                
             }
 
 

@@ -42,7 +42,7 @@ namespace LoggerSystem
 
         }
 
-        public static void Init(string Token, string IP, int Port)
+        public static async void Init(string Token, string IP, int Port)
         {
             init = true;
             worker = new Thread(SaveToFile);
@@ -52,7 +52,8 @@ namespace LoggerSystem
             ip = IP;
             port = Port;
             init = true;
-            FileManagement.FileManager.Init();
+            //Non Blocking, if server is down
+           Task.Run( () =>  FileManagement.FileManager.Init());
         }
 
         public static void SaveToFile()
