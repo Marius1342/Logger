@@ -22,6 +22,7 @@ namespace LoggerServer
             {
                 Systems.Add(line.Split('=')[1], line.Split('=')[0]);
             }
+            Task.Delay(2000);
         }
 
         /// <summary>
@@ -30,14 +31,29 @@ namespace LoggerServer
         public void Listen()
         {
             Listener.Start();
+            int i = 0;
             while (true)
             {
+                i++;
                 try
                 {
                     Task.Run(() => { HandelClient(Listener.AcceptTcpClient()); }).Start();
                 }
                 catch (Exception e) { }
 
+                if (i % 15 == 0)
+                {
+
+                    foreach (var line in File.ReadAllLines("./conf.txt"))
+                    {
+                        if (Systems.ContainsKey(line.Split('=')[1]) == false)
+                        {
+                            Systems.Add(line.Split('=')[1], line.Split('=')[0]);
+                        }
+
+                    }
+                    i = 0;
+                }
 
             }
         }
@@ -48,18 +64,17 @@ namespace LoggerServer
             NetworkStream ms = tcpClient.GetStream();
             while (tcpClient.Connected)
             {
-                Thread.Sleep(100);
                 //Wait until data is there, then read and do this again
                 while (ms.DataAvailable && ms.Socket.Available > 0)
                 {
-                    Thread.Sleep(100);
+                    Thread.Sleep(50);
                     if (tcpClient.Connected == false)
                     {
                         return Task.CompletedTask;
                     }
                 }
 
-               
+
                 MemoryStream memoryStream = new MemoryStream();
 
 
@@ -79,12 +94,12 @@ namespace LoggerServer
                     {
                         break;
                     }
-                    
+
                     memoryStream.Write(buffer, 0, numberOfBytesRead);
                 }
 
-                while ( ms.Socket.Available > 0);
-                
+                while (ms.Socket.Available > 0);
+
 
                 if (memoryStream.Length > 0)
                 {

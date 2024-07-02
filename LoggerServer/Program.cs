@@ -8,7 +8,7 @@ namespace LoggerServer
 {
     internal class Program
     {
-        public static int Port = 8080;
+        public static int Port = 27;
 
         static void Main(string[] args)
         {
@@ -49,11 +49,12 @@ namespace LoggerServer
                 }
                 catch
                 {
-                    LoggerSystem.Logger.Error($"System: Error with port to phrase");
+                    LoggerSystem.Logger.Error($"System: Error with port to phrase use standard: 27/tcp");
+                    Port = 27;
                 }
             }
 
-            LoggerServer loggerServer = new LoggerServer(27);
+            LoggerServer loggerServer = new LoggerServer(Port);
             loggerServer.Listen();
 
 
