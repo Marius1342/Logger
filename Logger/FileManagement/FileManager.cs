@@ -72,7 +72,7 @@ namespace LoggerSystem.FileManagement
                 PacketV1 pk = null;
                 while (pk == null)
                 {
-                    Thread.Sleep(50);
+                    Thread.Sleep(750);
                     lock (packetV1s)
                     {
                         pk = packetV1s.FirstOrDefault();
@@ -110,7 +110,7 @@ namespace LoggerSystem.FileManagement
         {
             while (packetV1s.Count > 0)
             {
-                Thread.Sleep(10);
+                Thread.Sleep(50);
             }
             tcpClient.Close();
             sender.Abort();

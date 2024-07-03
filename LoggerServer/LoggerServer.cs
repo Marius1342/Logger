@@ -62,7 +62,7 @@ namespace LoggerServer
                     }
                     i = 0;
                 }
-
+                Thread.Sleep(250);
             }
         }
 
@@ -75,7 +75,7 @@ namespace LoggerServer
                 //Wait until data is there, then read and do this again
                 while (ms.DataAvailable && ms.Socket.Available > 0)
                 {
-                    Thread.Sleep(50);
+                    Thread.Sleep(500);
                     if (tcpClient.Connected == false)
                     {
                         return Task.CompletedTask;
