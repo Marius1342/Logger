@@ -12,6 +12,7 @@ namespace LoggerServer
 
         static void Main(string[] args)
         {
+            LoggerSystem.Logger.maxSaveDays = 14;
             LoggerSystem.Logger.Init();
 
             if (File.Exists("./conf.txt") == false)
@@ -19,6 +20,7 @@ namespace LoggerServer
                 Console.WriteLine("Create config file for client ids");
                 File.Create("./conf.txt");
             }
+
 
 
             if (args.Length > 0)
