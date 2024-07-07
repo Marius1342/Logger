@@ -11,6 +11,8 @@ namespace LoggerSystem
 {
     public static class Logger
     {
+        
+
         public static Levels minLogLevel = Levels.None;
         /// <summary>
         /// Max save days when file reached the date, it will be deleted

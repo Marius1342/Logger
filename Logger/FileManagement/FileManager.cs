@@ -1,5 +1,5 @@
 ﻿using LoggerSystem.ConsoleSystem;
-using NetworkingLogger;
+using LoggerSystem.NetworkingLogger;
 using System;
 using System.Collections.Generic;
 using System.IO;

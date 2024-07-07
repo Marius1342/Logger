@@ -1,5 +1,5 @@
 ﻿using LoggerSystem;
-using NetworkingLogger;
+using LoggerSystem.NetworkingLogger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Logger.Network
+namespace LoggerSystem.Network
 {
     internal class Client
     {

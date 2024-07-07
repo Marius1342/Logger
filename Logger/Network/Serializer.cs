@@ -11,7 +11,7 @@ using System.Text.Json;
 using System.Runtime.Remoting.Contexts;
 using System.Text.Json.Serialization.Metadata;
 
-namespace NetworkingLogger
+namespace LoggerSystem.NetworkingLogger
 {
     public static class Serializer
     {
