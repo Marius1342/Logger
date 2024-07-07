@@ -19,7 +19,6 @@ namespace LoggerSystem.FileManagement
         private static TcpClient tcpClient;
         private static Thread sender;
         private static List<PacketV1> packetV1s = new List<PacketV1>();
-        
         public static int writtenLines
         {
             get; private set;
@@ -38,14 +37,16 @@ namespace LoggerSystem.FileManagement
         {
             get { return DateTime.Now.ToString("MM-dd-yyyy") + ".txt"; }
 
+
         }
 
         /// <summary>
-        /// Await this task, if you want enshure, that client is connected 
+        /// Await this task, if you want ensure, that client is connected 
         /// </summary>
         /// <returns></returns>
         public static void Init()
         {
+
             tcpClient = new TcpClient();
             while (tcpClient.Connected == false)
             {
@@ -57,11 +58,13 @@ namespace LoggerSystem.FileManagement
                 {
                     Console.WriteLine($"FATAL ERROR: {ex.Message}:{ex.InnerException}");
                 }
+                Thread.Sleep(5000);
             }
             logStream = tcpClient.GetStream();
 
             sender = new Thread(Sender);
             sender.Start();
+
 
         }
 
@@ -83,14 +86,26 @@ namespace LoggerSystem.FileManagement
                     }
                 }
 
-                
+
                 byte[] buffer = Serializer.ToByteArray(pk);
 
 
-                logStream.Write(buffer, 0, buffer.Length); 
-               
+                try
+                {
+                    logStream.Write(buffer, 0, buffer.Length);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"FATAL ERROR: {ex.Message}:{ex.InnerException}");
+                    lock (packetV1s)
+                    {
+                        packetV1s.Add(pk);
+                    }
+                }
 
                 tcpClient = new TcpClient();
+                
+                //Auto reconnect, only one message per client
                 while (tcpClient.Connected == false)
                 {
                     try
@@ -100,8 +115,11 @@ namespace LoggerSystem.FileManagement
                     catch (Exception ex)
                     {
                         Console.WriteLine($"FATAL ERROR: {ex.Message}:{ex.InnerException}");
+                        Thread.Sleep(5000);
                     }
                 }
+
+                //Set the log stream 
                 logStream = tcpClient.GetStream();
             }
         }
@@ -144,11 +162,11 @@ namespace LoggerSystem.FileManagement
                 {
                     packetV1s.Add(packetV1);
                 }
-                if ( tcpClient != null && tcpClient.Connected)
+                if (tcpClient != null && tcpClient.Connected)
                 {
                     return;
                 }
-                
+
             }
 
 
