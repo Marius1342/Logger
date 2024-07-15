@@ -13,11 +13,12 @@ namespace LoggerSystem.FileManagement
 {
     public class FileManager
     {
-        public static FileStream logFile;
-        public static object logFileLock = new object();
+        private static FileStream logFile;
+        private static object logFileLock = new object();
         private static NetworkStream logStream;
         private static TcpClient tcpClient;
         private static Thread sender;
+        private static StreamWriter logWriter;
         private static List<PacketV1> packetV1s = new List<PacketV1>();
         public static int writtenLines
         {
@@ -180,6 +181,8 @@ namespace LoggerSystem.FileManagement
 
             lock (logFileLock)
             {
+                //Set to end of stream
+                logFile.Seek(logFile.Length, SeekOrigin.Begin);
                 logFile.Write(bytes, 0, bytes.Length);
                 writtenLines++;
             }
@@ -233,6 +236,7 @@ namespace LoggerSystem.FileManagement
                 try
                 {
                     logFile = new FileStream(GetFullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                    logWriter = new StreamWriter(logFile);
                 }
                 catch (Exception ex)
                 {
@@ -241,18 +245,15 @@ namespace LoggerSystem.FileManagement
                 }
 
             }
+            //Create new File
             else
             {
                 if (logFile == null)
                 {
                     logFile = new FileStream(GetFullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                    logWriter = new StreamWriter(logFile);
                     logFile.Flush();
                 }
-
-
-
-
-
             }
             writtenLines = 0;
             currentFileName = logFile.Name;
@@ -295,6 +296,7 @@ namespace LoggerSystem.FileManagement
         {
             if (writtenLines > 3)
             {
+                logFile.Flush();
                 logFile.Flush();
             }
         }
