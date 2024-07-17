@@ -244,8 +244,16 @@ namespace LoggerSystem
             
             if (worker != null)
             {
-                worker.Abort();
-            }
+                //Handel error
+                try
+                {
+                    worker.Abort();
+                }
+                catch (Exception ex)
+                {
+                    
+                }
+                }
 
             FileManager.Dispose();
         }
