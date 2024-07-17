@@ -51,6 +51,13 @@ namespace LoggerSystem.FileManagement
             tcpClient = new TcpClient();
             while (tcpClient.Connected == false)
             {
+                if (Logger.init == false)
+                {
+                    Logger.Error($"Cannot send {packetV1s.Count} packets/logs");
+                    packetV1s.Clear();
+                    return;
+                }
+
                 try
                 {
                     tcpClient.Connect(Logger.ip, Logger.port);
@@ -59,8 +66,17 @@ namespace LoggerSystem.FileManagement
                 {
                     Console.WriteLine($"FATAL ERROR: {ex.Message}:{ex.InnerException}");
                 }
-                Thread.Sleep(5000);
+                Thread.Sleep(1000);
             }
+
+            //Check if to Dispose
+            if (Logger.init == false)
+            {
+                Logger.Error($"Cannot send {packetV1s.Count} packets/logs");
+                packetV1s.Clear();
+                return;
+            }
+
             logStream = tcpClient.GetStream();
 
             sender = new Thread(Sender);
@@ -85,6 +101,12 @@ namespace LoggerSystem.FileManagement
                             packetV1s.RemoveAt(0);
                         }
                     }
+                    if (Logger.init == false)
+                    {
+                        Logger.Error($"Cannot send {packetV1s.Count} packets/logs");
+                        packetV1s.Clear();
+                        return;
+                    }
                 }
 
 
@@ -105,10 +127,17 @@ namespace LoggerSystem.FileManagement
                 }
 
                 tcpClient = new TcpClient();
-                
+
                 //Auto reconnect, only one message per client
                 while (tcpClient.Connected == false)
                 {
+                    if (Logger.init == false)
+                    {
+                        Logger.Error($"Cannot send {packetV1s.Count} packets/logs");
+                        packetV1s.Clear();
+                        return;
+                    }
+
                     try
                     {
                         tcpClient.Connect(Logger.ip, Logger.port);
@@ -119,6 +148,8 @@ namespace LoggerSystem.FileManagement
                         Thread.Sleep(5000);
                     }
                 }
+
+
 
                 //Set the log stream 
                 logStream = tcpClient.GetStream();
@@ -132,7 +163,10 @@ namespace LoggerSystem.FileManagement
                 Thread.Sleep(50);
             }
             tcpClient.Close();
-            sender.Abort();
+            if (sender != null)
+            {
+                sender.Abort();
+            }
         }
 
         /// <summary>
@@ -302,7 +336,14 @@ namespace LoggerSystem.FileManagement
         }
         public static void Dispose()
         {
+
+            if (logFile == null)
+            {
+                return;
+            }
+
             logFile.Flush();
+
             logFile.Close();
             logFile.Dispose();
         }

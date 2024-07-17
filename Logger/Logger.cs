@@ -18,11 +18,12 @@ namespace LoggerSystem
         /// Max save days when file reached the date, it will be deleted
         /// </summary>
         public static int maxSaveDays = 2;
-        private static bool init = false;
+
         private static bool network = false;
         public static string ip { get; internal set; }
         public static int port { get; internal set; }
         public static string token { get; internal set; }
+        public static bool init { get; internal set; } = false;
         private static Thread worker = null;
         public static void Init()
         {
@@ -237,9 +238,10 @@ namespace LoggerSystem
         /// </summary>
         public static void Close()
         {
+            init = false;
             FileManagement.FileManager.Close();
 
-            init = false;
+            
             if (worker != null)
             {
                 worker.Abort();
