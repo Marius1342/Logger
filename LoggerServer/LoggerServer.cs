@@ -134,6 +134,9 @@ namespace LoggerServer
                         case Levels.Warning:
                             LoggerSystem.Logger.Warning(packetV1.Message);
                             continue;
+                        case Levels.Error:
+                            LoggerSystem.Logger.Error(packetV1.Message);
+                            continue;
                     }
 
                 }

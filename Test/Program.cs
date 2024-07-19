@@ -14,6 +14,18 @@ namespace Test
             while (true)
             {
 
+                try
+                {
+                   
+                    throw new Exception("aa");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Test");
+                    Logger.Error($"Error {e.Message}:{e.InnerException}");
+                }
+
+
                 LoggerSystem.Logger.Log("Test23");
                 if (Console.ReadKey().Key == ConsoleKey.Enter)
                 {
