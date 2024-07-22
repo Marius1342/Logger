@@ -3,10 +3,11 @@ using System.IO;
 using System.Security.Authentication;
 using System.Security.Cryptography;
 using LoggerSystem;
+using LoggerSystem.FileManagement;
 
 namespace LoggerServer
 {
-    internal class Program
+    internal class Program : IDisposable
     {
         public static int Port = 27;
 
@@ -14,6 +15,9 @@ namespace LoggerServer
         {
             LoggerSystem.Logger.maxSaveDays = 14;
             LoggerSystem.Logger.Init();
+
+
+            AppDomain.CurrentDomain.ProcessExit += new EventHandler(CurrentDomain_ProcessExit);
 
             if (File.Exists("./conf.txt") == false)
             {
@@ -59,6 +63,25 @@ namespace LoggerServer
             LoggerServer loggerServer = new LoggerServer(Port);
             loggerServer.Listen();
 
+            
+        }
+
+        static void CurrentDomain_ProcessExit(object sender, EventArgs e)
+        {
+            Console.WriteLine("exit");
+            FileManager.Dispose();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            FileManager.Dispose();
 
         }
     }

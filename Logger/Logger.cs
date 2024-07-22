@@ -63,7 +63,7 @@ namespace LoggerSystem
         {
             while (init)
             {
-                Thread.Sleep(150);
+                Thread.Sleep(2000);
                 FileManager.Save();
             }
         }

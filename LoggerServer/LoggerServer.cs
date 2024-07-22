@@ -6,10 +6,11 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using LoggerSystem;
+using LoggerSystem.FileManagement;
 using LoggerSystem.NetworkingLogger;
 namespace LoggerServer
 {
-    internal class LoggerServer
+    internal class LoggerServer : IDisposable
     {
         private int Port;
         private TcpListener Listener;
@@ -64,6 +65,7 @@ namespace LoggerServer
                 }
                 Thread.Sleep(125);
             }
+            FileManager.Close();
         }
 
         public virtual Task HandelClient(TcpClient tcpClient)
@@ -150,6 +152,20 @@ namespace LoggerServer
 
             return Task.CompletedTask;
         }
+
+        public  void Dispose()
+        {
+            Dispose(true);
+
+
+
+            GC.SuppressFinalize(this);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            FileManager.Close();
+        }
+
 
     }
 }

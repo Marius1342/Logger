@@ -1,4 +1,5 @@
-﻿using LoggerSystem.ConsoleSystem;
+﻿using Logger.FileManagement.Xml;
+using LoggerSystem.ConsoleSystem;
 using LoggerSystem.NetworkingLogger;
 using System;
 using System.Collections.Generic;
@@ -9,17 +10,23 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using System.Xml.Serialization;
 namespace LoggerSystem.FileManagement
 {
     public class FileManager
     {
         private static FileStream logFile;
+        private static FileStream xmlFile;
         private static object logFileLock = new object();
         private static NetworkStream logStream;
         private static TcpClient tcpClient;
         private static Thread sender;
         private static StreamWriter logWriter;
+        private static StreamWriter xmlWriter;
         private static List<PacketV1> packetV1s = new List<PacketV1>();
+        private static XmlWriter XmlWriterStream;
         public static int writtenLines
         {
             get; private set;
@@ -158,14 +165,24 @@ namespace LoggerSystem.FileManagement
 
         public static void Close()
         {
-            while (packetV1s.Count > 0)
+            int counter = 0;
+            //Wait only max 1 second 20*50 = 1000 = 1s
+            while (packetV1s.Count > 0 && counter < 20)
             {
                 Thread.Sleep(50);
+                counter++;
             }
             tcpClient.Close();
             if (sender != null)
             {
-                sender.Abort();
+                try
+                {
+                    sender.Abort();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("ERROR " + ex.Message);
+                }
             }
         }
 
@@ -210,6 +227,14 @@ namespace LoggerSystem.FileManagement
                 ConsoleHelper.WriteToConsole("Error logFile is null", Levels.Error);
                 return;
             }
+
+            Root.Add(new LogXml()
+            {
+                dateTime = DateTime.Now,
+                Message = message,
+                Levels = level,
+            });
+
 
             byte[] bytes = Encoding.UTF8.GetBytes(log + Environment.NewLine);
 
@@ -265,12 +290,26 @@ namespace LoggerSystem.FileManagement
                 }
             }
 
+            XDocument xDocument = new XDocument();
+
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Indent = true;
+            settings.Encoding = Encoding.UTF8;
+            settings.WriteEndDocumentOnClose = true;
+
+            XmlWriterStream = XmlWriter.Create(GetFullPath.Substring(0, GetFullPath.Length - 3) + DateTime.Now.ToString("ss-ff-mm") + ".xml", settings);
+
             if (File.Exists(GetFullPath) == false)
             {
                 try
                 {
                     logFile = new FileStream(GetFullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
                     logWriter = new StreamWriter(logFile);
+
+                    //xmlFile = new FileStream(GetFullPath.Substring(0, GetFullPath.Length - 3) + "xml", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                    //xmlWriter = new StreamWriter(xmlFile);
+                    //XmlWriterStream = XmlWriter.Create(xmlFile, settings);
+                    
                 }
                 catch (Exception ex)
                 {
@@ -287,8 +326,24 @@ namespace LoggerSystem.FileManagement
                     logFile = new FileStream(GetFullPath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
                     logWriter = new StreamWriter(logFile);
                     logFile.Flush();
+
+                    
+
+
+
                 }
             }
+
+
+            XmlWriterStream.WriteStartDocument();
+            XmlWriterStream.WriteStartElement("data");
+
+
+
+
+
+            //xmlFile.Flush();
+
             writtenLines = 0;
             currentFileName = logFile.Name;
             return true;
@@ -304,6 +359,12 @@ namespace LoggerSystem.FileManagement
                 i++;
                 //Create DateTime from name
                 string name = Path.GetFileName(file);
+
+                if (name.EndsWith(".xml")) {
+                    WriteToFile($"Skip file: {name} it is a xml file", Levels.Info);
+                    continue;
+                }
+ 
                 name = name.Substring(0, name.Length - 4);
                 bool success = DateTime.TryParse(name, out DateTime time);
                 if (success == false)
@@ -330,21 +391,68 @@ namespace LoggerSystem.FileManagement
         {
             if (writtenLines > 3)
             {
+                //Prevent Bugs
+
                 logFile.Flush();
                 logFile.Flush();
+
+                if (Root.Count > 0)
+                {
+                    var logs = new XElement("entry",
+
+                                Root.GetLogXml().Select(log =>
+                                    new XElement("Log",
+                                        new XElement("ApiToken", log.ApiToken),
+                                        new XElement("dateTime", log.dateTime),
+                                        new XElement("SystemName", log.SystemName),
+                                        new XElement("Levels", log.Levels),
+                                        new XElement("Message", log.Message)
+                                    )
+                                )
+                            );
+
+
+                    string data = logs.ToString();
+
+                    XmlWriterStream.WriteRaw(data);
+
+                    XmlWriterStream.Flush();
+
+
+
+                    //xmlFile.Flush();
+                    //xmlWriter.Flush();
+                }
+
+
             }
         }
         public static void Dispose()
         {
 
+            //ERROR HERE
+            //XmlWriterStream.WriteEndAttribute();
+            try
+            {
+                XmlWriterStream.WriteEndDocument();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message + " " + ex.InnerException);
+            }
+            XmlWriterStream.Flush();
             if (logFile == null)
             {
                 return;
             }
 
+            //xmlWriter.Flush();
+            //xmlFile.Flush();
             logFile.Flush();
 
+            //xmlFile.Close();
             logFile.Close();
+            //xmlFile.Close();
             logFile.Dispose();
         }
     }
