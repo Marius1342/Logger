@@ -132,6 +132,7 @@ namespace LoggerServer
                     }
                     if (packet.Command == PacketV2.Commands.GetXmlFiles)
                     {
+                        FileManager.NewXmlFile();
                         LoggerSystem.Logger.Information("Scan for XML Files Network download");
                         string[] files = FileManager.GetXmlFiles;
                         PacketV2 packetV2 = new PacketV2();

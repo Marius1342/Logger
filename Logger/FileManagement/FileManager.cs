@@ -302,6 +302,20 @@ namespace LoggerSystem.FileManagement
             settings.Encoding = Encoding.UTF8;
             settings.WriteEndDocumentOnClose = true;
 
+            if(XmlWriterStream != null)
+            {
+                try
+                {
+                    XmlWriterStream.WriteEndDocument();
+                    XmlWriterStream.Flush();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error: " + ex.Message + " " + ex.InnerException);
+                }
+                
+            }
+
             XmlWriterStream = XmlWriter.Create(GetFullPath.Substring(0, GetFullPath.Length - 3) + DateTime.Now.ToString("ss-ff-mm") + ".xml", settings);
 
             if (File.Exists(GetFullPath) == false)
@@ -423,15 +437,40 @@ namespace LoggerSystem.FileManagement
 
                     XmlWriterStream.Flush();
 
-
-
-                    //xmlFile.Flush();
-                    //xmlWriter.Flush();
                 }
 
 
             }
         }
+
+        public static void NewXmlFile()
+        {
+            try
+            {
+                XmlWriterStream.WriteEndDocument();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message + " " + ex.InnerException);
+            }
+            XmlWriterStream.Flush();
+            
+            XmlWriterStream.Close();
+
+            XDocument xDocument = new XDocument();
+
+            XmlWriterSettings settings = new XmlWriterSettings();
+            settings.Indent = true;
+            settings.Encoding = Encoding.UTF8;
+            settings.WriteEndDocumentOnClose = true;
+
+            XmlWriterStream = XmlWriter.Create(GetFullPath.Substring(0, GetFullPath.Length - 3) + DateTime.Now.ToString("ss-ff-mm") + ".xml", settings);
+
+
+            XmlWriterStream.WriteStartDocument();
+            XmlWriterStream.WriteStartElement("data");
+        }
+
         public static void Dispose()
         {
 
