@@ -12,7 +12,9 @@
             <ColumnDefinition Width="353*"/>
         </Grid.ColumnDefinitions>
         <Button Content="Import Log files" HorizontalAlignment="Left" Margin="47,10,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Height="25" Width="89" Click="Button_Click"/>
-        <DataGrid AutoGeneratingColumn="DataSet_AutoGeneratingColumn" x:Name="DataSet" Margin="63,35,10,15" Grid.Column="1"/>
+        <DataGrid AutoGeneratingColumn="DataSet_AutoGeneratingColumn" x:Name="DataSetLogs" Margin="63,35,10,15" Grid.Column="1"/>
+        <Button x:Name="Network" Content="Network" HorizontalAlignment="Left" Margin="44,53,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="92" Click="Network_Click"/>
+
 
     </Grid>
 </Window>

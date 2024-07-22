@@ -1,7 +1,11 @@
 ﻿using Logger.FileManagement.Xml;
+using LoggerRead.Windows;
 using LoggerSystem;
 using Microsoft.Win32;
+using System.Collections.Generic;
+using System.Data;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,6 +27,7 @@ namespace LoggerRead
     public partial class MainWindow : Window
     {
         public List<LogXml> LogXml = new List<LogXml>();
+        public static List<List<string>> FilesVirtual = new List<List<string>>();
         public MainWindow()
         {
             InitializeComponent();
@@ -62,7 +67,7 @@ namespace LoggerRead
                         continue;
                     }
 
-                   
+
 
 
                 }
@@ -73,13 +78,21 @@ namespace LoggerRead
 
                 LogXml = LogXml.OrderBy(x => x.dateTime).ToList();
 
-                DataSet.ItemsSource = LogXml;
+                DataSetLogs.ItemsSource = LogXml;
             }
         }
 
+
         public static Data DeserializeXml(string xmlString)
         {
-            XElement root = XElement.Parse(xmlString);
+            XElement root;
+            try
+            {
+                root = XElement.Parse(xmlString);
+            }catch(Exception ex)
+            {
+                return new Data();
+            }
             var data = new Data
             {
                 entries = root.Elements("entry").Select(entry => new Entry
@@ -98,12 +111,42 @@ namespace LoggerRead
             return data;
         }
 
-        
+
 
         private void DataSet_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
             if (e.PropertyType == typeof(System.DateTime))
-                (e.Column as DataGridTextColumn).Binding.StringFormat = "dd.MM.yyyy";
+                (e.Column as DataGridTextColumn).Binding.StringFormat = "HH:mm:ss:f dd-MM-yyyy";
+        }
+
+        private void Network_Click(object sender, RoutedEventArgs e)
+        {
+            new NetworkDownload().ShowDialog();
+
+            List<Entry> logXmls = new List<Entry>();
+            foreach (var f in FilesVirtual)
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.Append(f.ToArray());
+
+                var data = DeserializeXml(string.Join(Environment.NewLine, f.ToArray()));
+                if(data.entries == null)
+                {
+                    continue;
+                }
+
+                logXmls.AddRange(data.entries);
+                foreach (var entry in logXmls)
+                {
+                    LogXml.AddRange(entry.LogXml);
+                }
+            }
+
+
+            LogXml = LogXml.OrderBy(x => x.dateTime).ToList();
+
+            DataSetLogs.ItemsSource = LogXml;
+
         }
     }
 }

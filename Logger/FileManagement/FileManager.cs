@@ -48,6 +48,11 @@ namespace LoggerSystem.FileManagement
 
         }
 
+        public static string[] GetXmlFiles
+        {
+            get { return Directory.GetFiles(Path.Combine(GetAppPath + "logs"), "*.xml"); }
+        }
+
         /// <summary>
         /// Await this task, if you want ensure, that client is connected 
         /// </summary>

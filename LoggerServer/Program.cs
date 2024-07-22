@@ -10,7 +10,6 @@ namespace LoggerServer
     internal class Program : IDisposable
     {
         public static int Port = 27;
-
         static void Main(string[] args)
         {
             LoggerSystem.Logger.maxSaveDays = 14;

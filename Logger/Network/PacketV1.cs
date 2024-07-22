@@ -10,12 +10,11 @@ namespace LoggerSystem.NetworkingLogger
 {
     [Serializable]
 
-    public class PacketV1
+    public class PacketV1 
     {
         public string Message { get; set; }
         public Levels Level { get; set; }
         public string Token {  get; set; }
-
 
     }
 }

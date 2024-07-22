@@ -34,29 +34,33 @@ namespace LoggerSystem.NetworkingLogger
 
             return bytes;
         }
+        public static byte[] ToByteArray(PacketV2 packet)
+        {
+            byte[] bytes;
+
+            //Unsafe
+            /* IFormatter formatter = new BinaryFormatter();
+
+             using (MemoryStream ms = new MemoryStream())
+             {
+                 formatter.Serialize(ms, packet);
+                 bytes = ms.ToArray();
+             }*/
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string data = JsonSerializer.Serialize<PacketV2>(packet, options);
+
+            bytes = Encoding.UTF8.GetBytes(data);
+
+            return bytes;
+        }
+
 
         public static PacketV1 ToPacket(MemoryStream packet)
         {
             
             packet.Position = 0;
             PacketV1 packetV1;
-            //Unsafe
-            /*IFormatter formatter = new BinaryFormatter();
             
-            try
-            {
-                packetV1 = (PacketV1)formatter.Deserialize(packet);
-            }
-            catch (Exception ex)
-            {
-                LoggerSystem.Logger.Error($"System: Error with obj to serialize: {ex.Message}: {ex.InnerException}");
-                return new PacketV1()
-                {
-                    Token = "0",
-                    Message = "Error with obj to serialize",
-                    Level = Levels.Error
-                };
-            }*/
 
             string dataJson = Encoding.UTF8.GetString(packet.ToArray());
 
@@ -64,5 +68,20 @@ namespace LoggerSystem.NetworkingLogger
 
             return packetV1;
         }
+
+        public static PacketV2 ToPacketV2(MemoryStream packet)
+        {
+
+            packet.Position = 0;
+            PacketV2 packetV2;
+
+
+            string dataJson = Encoding.UTF8.GetString(packet.ToArray());
+
+            packetV2 = (PacketV2)JsonSerializer.Deserialize<PacketV2>(dataJson);
+
+            return packetV2;
+        }
+
     }
 }
