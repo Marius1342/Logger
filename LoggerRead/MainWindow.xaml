@@ -18,7 +18,8 @@
         <CheckBox Content="Warning" IsChecked="True" x:Name="warn" HorizontalAlignment="Left" Margin="44,128,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="92"/>
         <CheckBox Content="Log" IsChecked="True" x:Name="log" HorizontalAlignment="Left" Margin="44,108,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="92"/>
         <CheckBox Content="Error" IsChecked="True" x:Name="error" HorizontalAlignment="Left" Margin="44,148,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="92"/>
-        <Button Content="Filter" x:Name="Filter" HorizontalAlignment="Left" Margin="44,168,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="92" Click="Filter_Click"/>
+        <Button Content="Filter" x:Name="Filter" HorizontalAlignment="Left" Margin="44,188,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="92" Click="Filter_Click"/>
+        <CheckBox Content="None" IsChecked="False" x:Name="none" HorizontalAlignment="Left" Margin="44,168,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="92"/>
 
 
     </Grid>

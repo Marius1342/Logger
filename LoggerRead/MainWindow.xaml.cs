@@ -146,12 +146,18 @@ namespace LoggerRead
             LogXml = LogXml.OrderBy(x => x.dateTime).ToList();
 
             DataSetLogs.ItemsSource = LogXml;
-
+            HandelFilter();
         }
 
         private void Filter_Click(object sender, RoutedEventArgs e)
         {
-            if(info.IsChecked == false)
+            HandelFilter();
+        }
+
+
+        private void HandelFilter()
+        {
+            if (info.IsChecked == false)
             {
                 LogXml.RemoveAll(x => x.Levels == Levels.Info);
             }
@@ -166,6 +172,10 @@ namespace LoggerRead
             if (error.IsChecked == false)
             {
                 LogXml.RemoveAll(x => x.Levels == Levels.Error);
+            }
+            if (none.IsChecked == false)
+            {
+                LogXml.RemoveAll(x => x.Levels == Levels.None);
             }
 
             DataSetLogs.ItemsSource = LogXml;
