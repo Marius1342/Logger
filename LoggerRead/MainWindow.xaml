@@ -14,6 +14,11 @@
         <Button Content="Import Log files" HorizontalAlignment="Left" Margin="47,10,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Height="25" Width="89" Click="Button_Click"/>
         <DataGrid AutoGeneratingColumn="DataSet_AutoGeneratingColumn" x:Name="DataSetLogs" Margin="63,35,10,15" Grid.Column="1"/>
         <Button x:Name="Network" Content="Network" HorizontalAlignment="Left" Margin="44,53,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="92" Click="Network_Click"/>
+        <CheckBox Content="Information" IsChecked="True" x:Name="info" HorizontalAlignment="Left" Margin="44,88,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="92"/>
+        <CheckBox Content="Warning" IsChecked="True" x:Name="warn" HorizontalAlignment="Left" Margin="44,128,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="92"/>
+        <CheckBox Content="Log" IsChecked="True" x:Name="log" HorizontalAlignment="Left" Margin="44,108,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="92"/>
+        <CheckBox Content="Error" IsChecked="True" x:Name="error" HorizontalAlignment="Left" Margin="44,148,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="92"/>
+        <Button Content="Filter" x:Name="Filter" HorizontalAlignment="Left" Margin="44,168,0,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Width="92" Click="Filter_Click"/>
 
 
     </Grid>

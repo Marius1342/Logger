@@ -148,5 +148,27 @@ namespace LoggerRead
             DataSetLogs.ItemsSource = LogXml;
 
         }
+
+        private void Filter_Click(object sender, RoutedEventArgs e)
+        {
+            if(info.IsChecked == false)
+            {
+                LogXml.RemoveAll(x => x.Levels == Levels.Info);
+            }
+            if (log.IsChecked == false)
+            {
+                LogXml.RemoveAll(x => x.Levels == Levels.Log);
+            }
+            if (warn.IsChecked == false)
+            {
+                LogXml.RemoveAll(x => x.Levels == Levels.Warning);
+            }
+            if (error.IsChecked == false)
+            {
+                LogXml.RemoveAll(x => x.Levels == Levels.Error);
+            }
+
+            DataSetLogs.ItemsSource = LogXml;
+        }
     }
 }
