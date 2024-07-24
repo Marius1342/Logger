@@ -18,6 +18,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace LoggerRead
 {
@@ -57,9 +58,14 @@ namespace LoggerRead
 
                     try
                     {
-                        string data = File.ReadAllText(f);
+                        string text = File.ReadAllText(f);
 
-                        logXmls.AddRange(DeserializeXml(data).entries);
+                        if (text.EndsWith("</data>") == false)
+                        {
+                            text += "</data>";
+                        }
+
+                        logXmls.AddRange(DeserializeXml(text).entries);
                     }
                     catch (Exception ex)
                     {
@@ -129,7 +135,14 @@ namespace LoggerRead
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.Append(f.ToArray());
 
-                var data = DeserializeXml(string.Join(Environment.NewLine, f.ToArray()));
+                string text = string.Join(Environment.NewLine, f.ToArray());
+
+                //Auto repair
+                if(text.EndsWith("</data>") == false){
+                    text += "</data>";
+                }
+
+                var data = DeserializeXml(text);
                 if(data.entries == null)
                 {
                     continue;
