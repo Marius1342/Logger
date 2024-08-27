@@ -3,6 +3,7 @@ using LoggerSystem.ConsoleSystem;
 using LoggerSystem.NetworkingLogger;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -302,7 +303,7 @@ namespace LoggerSystem.FileManagement
             settings.Encoding = Encoding.UTF8;
             settings.WriteEndDocumentOnClose = true;
 
-            if(XmlWriterStream != null)
+            if (XmlWriterStream != null)
             {
                 try
                 {
@@ -313,7 +314,7 @@ namespace LoggerSystem.FileManagement
                 {
                     Console.WriteLine("Error: " + ex.Message + " " + ex.InnerException);
                 }
-                
+
             }
 
             XmlWriterStream = XmlWriter.Create(GetFullPath.Substring(0, GetFullPath.Length - 3) + DateTime.Now.ToString("ss-ff-mm") + ".xml", settings);
@@ -328,7 +329,7 @@ namespace LoggerSystem.FileManagement
                     //xmlFile = new FileStream(GetFullPath.Substring(0, GetFullPath.Length - 3) + "xml", FileMode.OpenOrCreate, FileAccess.ReadWrite);
                     //xmlWriter = new StreamWriter(xmlFile);
                     //XmlWriterStream = XmlWriter.Create(xmlFile, settings);
-                    
+
                 }
                 catch (Exception ex)
                 {
@@ -346,7 +347,7 @@ namespace LoggerSystem.FileManagement
                     logWriter = new StreamWriter(logFile);
                     logFile.Flush();
 
-                    
+
 
 
 
@@ -378,14 +379,32 @@ namespace LoggerSystem.FileManagement
                 i++;
                 //Create DateTime from name
                 string name = Path.GetFileName(file);
+                bool success = false;
+                DateTime time = DateTime.Now;
 
-                if (name.EndsWith(".xml")) {
-                    WriteToFile($"Skip file: {name} it is a xml file", Levels.Info);
-                    continue;
+
+                if (name.EndsWith(".xml"))
+                {
+                    name = name.Substring(0, name.Length - 4);
+                    try
+                    {
+                        time = DateTime.ParseExact(name, "MM-dd-yyyy.ss-ff-mm", CultureInfo.CurrentCulture);
+                        success = true;
+                    }
+                    catch
+                    {
+                        success = false;
+                    }
+
                 }
- 
-                name = name.Substring(0, name.Length - 4);
-                bool success = DateTime.TryParse(name, out DateTime time);
+                else
+                {
+                    name = name.Substring(0, name.Length - 4);
+                    success = DateTime.TryParse(name, out time);
+
+                }
+
+
                 if (success == false)
                 {
                     WriteToFile($"Error with file:{file}", Levels.Error);
@@ -454,7 +473,7 @@ namespace LoggerSystem.FileManagement
                 Console.WriteLine("Error: " + ex.Message + " " + ex.InnerException);
             }
             XmlWriterStream.Flush();
-            
+
             XmlWriterStream.Close();
 
             XDocument xDocument = new XDocument();

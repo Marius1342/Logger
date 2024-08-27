@@ -56,7 +56,7 @@ namespace LoggerSystem
             port = Port;
             init = true;
             //Non Blocking, if server is down
-           Task.Run( () =>  FileManagement.FileManager.Init());
+            Task.Run( () =>  FileManagement.FileManager.Init());
         }
 
         public static void SaveToFile()
