@@ -38,13 +38,23 @@ namespace LoggerSystem.Network
             try
             {
                 tcpClient.Connect(IP, Port);
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 LoggerSystem.Logger.Error($"Ex: {ex.Message}");
                 return;
             }
-            try { 
-            tcpClient.GetStream().Write(arr, 0, arr.Length);
+            try
+            {
+                NetworkStream ns = tcpClient.GetStream();
+
+                byte[] dataS = BitConverter.GetBytes(arr.Length);
+
+                byte[] size_flag = new byte[] { 0x02, dataS[0], dataS[1], dataS[2], dataS[3], };
+
+                ns.Write(size_flag, 0, size_flag.Length);
+
+                ns.Write(arr, 0, arr.Length);
             }
             catch (Exception ex)
             {

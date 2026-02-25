@@ -7,9 +7,9 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
-using System.Text.Json;
+
 using System.Runtime.Remoting.Contexts;
-using System.Text.Json.Serialization.Metadata;
+using Newtonsoft.Json;
 
 namespace LoggerSystem.NetworkingLogger
 {
@@ -17,37 +17,15 @@ namespace LoggerSystem.NetworkingLogger
     {
         public static byte[] ToByteArray(PacketV1 packet)
         {
-            byte[] bytes;
+            
+            string data = JsonConvert.SerializeObject(packet, Formatting.Indented);
 
-            //Unsafe
-            /* IFormatter formatter = new BinaryFormatter();
-
-             using (MemoryStream ms = new MemoryStream())
-             {
-                 formatter.Serialize(ms, packet);
-                 bytes = ms.ToArray();
-             }*/
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string data = JsonSerializer.Serialize<PacketV1>(packet, options);
-
-            bytes = Encoding.UTF8.GetBytes(data);
-
-            return bytes;
+            return Encoding.UTF8.GetBytes(data);
         }
         public static byte[] ToByteArray(PacketV2 packet)
         {
             byte[] bytes;
-
-            //Unsafe
-            /* IFormatter formatter = new BinaryFormatter();
-
-             using (MemoryStream ms = new MemoryStream())
-             {
-                 formatter.Serialize(ms, packet);
-                 bytes = ms.ToArray();
-             }*/
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string data = JsonSerializer.Serialize<PacketV2>(packet, options);
+            string data = JsonConvert.SerializeObject(packet, Formatting.Indented);
 
             bytes = Encoding.UTF8.GetBytes(data);
 
@@ -57,16 +35,26 @@ namespace LoggerSystem.NetworkingLogger
 
         public static PacketV1 ToPacket(MemoryStream packet)
         {
-            
             packet.Position = 0;
             PacketV1 packetV1;
-            
 
-            string dataJson = Encoding.UTF8.GetString(packet.ToArray());
-
-            packetV1 = (PacketV1)JsonSerializer.Deserialize<PacketV1>(dataJson);
-
+            packet.Position = 0;
+            using (var sr = new StreamReader(packet, Encoding.UTF8))
+            using (var jsonReader = new JsonTextReader(sr))
+            {
+                packetV1 = new JsonSerializer().Deserialize<PacketV1>(jsonReader);
+            }
             return packetV1;
+
+            //packet.Position = 0;
+            //PacketV1 packetV1;
+
+
+            //string dataJson = Encoding.UTF8.GetString(packet.ToArray());
+
+            //packetV1 = (PacketV1)JsonConvert.DeserializeObject<PacketV1>(dataJson);
+
+            //return packetV1;
         }
 
         public static PacketV2 ToPacketV2(MemoryStream packet)
@@ -75,12 +63,19 @@ namespace LoggerSystem.NetworkingLogger
             packet.Position = 0;
             PacketV2 packetV2;
 
-
-            string dataJson = Encoding.UTF8.GetString(packet.ToArray());
-
-            packetV2 = (PacketV2)JsonSerializer.Deserialize<PacketV2>(dataJson);
-
+            packet.Position = 0;
+            using (var sr = new StreamReader(packet, Encoding.UTF8))
+            using (var jsonReader = new JsonTextReader(sr))
+            {
+                packetV2 = new JsonSerializer().Deserialize<PacketV2>(jsonReader);
+            }
             return packetV2;
+
+            //string dataJson = Encoding.UTF8.GetString(packet.ToArray());
+
+            //packetV2 = (PacketV2)JsonConvert.DeserializeObject<PacketV2>(dataJson);
+
+            //return packetV2;
         }
 
     }

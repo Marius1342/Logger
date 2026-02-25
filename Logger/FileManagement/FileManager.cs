@@ -79,7 +79,7 @@ namespace LoggerSystem.FileManagement
                 {
                     Console.WriteLine($"FATAL ERROR: {ex.Message}:{ex.InnerException}");
                 }
-                Thread.Sleep(1000);
+                Thread.Sleep(125);
             }
 
             //Check if to Dispose
@@ -128,6 +128,13 @@ namespace LoggerSystem.FileManagement
 
                 try
                 {
+
+                    byte[] dataS = BitConverter.GetBytes(buffer.Length);
+
+                    byte[] size_flag = new byte[] { 0x02, dataS[0], dataS[1], dataS[2], dataS[3], };
+
+                    logStream.Write(size_flag, 0, size_flag.Length);
+
                     logStream.Write(buffer, 0, buffer.Length);
                 }
                 catch (Exception ex)

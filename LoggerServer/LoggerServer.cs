@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net.Sockets;
 using System.Numerics;
@@ -15,6 +16,7 @@ namespace LoggerServer
 {
     internal class LoggerServer : IDisposable
     {
+        private const int SIZE_BUFFER = 512;
         private int Port;
         private TcpListener Listener;
         private Dictionary<string, string> Systems = new Dictionary<string, string>();
@@ -49,13 +51,14 @@ namespace LoggerServer
                 i++;
                 try
                 {
-                    Task.Run(() => { HandelClient(Listener.AcceptTcpClient()); }).Start();
+                    //Reminder: Do not use Start();
+                    Task.Run(() => { HandelClient(Listener.AcceptTcpClient()); });
                 }
                 catch (Exception e) { }
 
                 if (i % 15 == 0)
                 {
-
+                    //Auto refresh config
                     foreach (var line in File.ReadAllLines("./conf.txt"))
                     {
                         if (Systems.ContainsKey(line.Split('=')[1]) == false)
@@ -71,49 +74,103 @@ namespace LoggerServer
             FileManager.Close();
         }
 
-        public virtual Task HandelClient(TcpClient tcpClient)
+        public virtual async Task HandelClient(TcpClient tcpClient)
         {
-
-            NetworkStream ms = tcpClient.GetStream();
             while (tcpClient.Connected)
             {
-                //Wait until data is there, then read and do this again
-                while (ms.DataAvailable && ms.Socket.Available < 0)
+                NetworkStream NetworkStream = tcpClient.GetStream();
+
+                ////Wait until data is there, then read and do this again
+                //while (NetworkStream.DataAvailable && NetworkStream.Socket.Available < 0)
+                //{
+                //    await Task.Delay(125);
+                //    if (tcpClient.Connected == false)
+                //    {
+                //        return;
+                //    }
+                //}
+
+
+                using MemoryStream memoryStream = new MemoryStream();
+
+                //Check if new Protocol is used
+
+                byte[] size_flag = new byte[5];
+                NetworkStream.Read(size_flag, 0, size_flag.Length);
+
+                int readSize = 0;
+
+                if (size_flag[0] == 0x02)
                 {
-                    Thread.Sleep(125);
-                    if (tcpClient.Connected == false)
-                    {
-                        return Task.CompletedTask;
-                    }
+                    readSize = BitConverter.ToInt32(size_flag, 1);
+                }
+                else
+                {
+                    //Old Client
+                    memoryStream.Write(size_flag, 0, size_flag.Length);
                 }
 
 
-                MemoryStream memoryStream = new MemoryStream();
-
-
-
-
-                byte[] buffer = new byte[512];
-
-                //ms.ReadTimeout = 2500;
-                do
+                byte[] buffer = new byte[SIZE_BUFFER];
+                if (readSize == 0)
                 {
-                    int numberOfBytesRead;
-                    try
-                    {
-                        numberOfBytesRead = ms.Read(buffer, 0, buffer.Length);
-                    }
-                    catch (Exception e)
-                    {
-                        LoggerSystem.Logger.Error($"System Timeout read data");
-                        break;
-                    }
 
-                    memoryStream.Write(buffer, 0, numberOfBytesRead);
+                    UInt16 deadCounter = 25;
+
+                    //Wait until data is there 
+                    await Task.Delay(50);
+
+
+                    do
+                    {
+                        
+                        
+                        if (deadCounter == 0)
+                        {
+                            LoggerSystem.Logger.Error($"Error with client: Dead Counter triggerd");
+                            return;
+                        }
+
+                        int numberOfBytesRead;
+                        try
+                        {
+                            numberOfBytesRead = NetworkStream.Read(buffer, 0, buffer.Length);
+                        }
+                        catch (Exception e)
+                        {
+                            LoggerSystem.Logger.Error($"System Timeout read data");
+                            break;
+                        }
+
+                        memoryStream.Write(buffer, 0, numberOfBytesRead);
+                        deadCounter--;
+
+                        //TCP Delay, all over 50ms is BAD and must FAIL
+                        await Task.Delay(50);
+                    }
+                    while (NetworkStream.Socket.Available > 0);
                 }
+                else
+                {
+                    //New Client
 
-                while (ms.Socket.Available > 0);
+                    do
+                    {
+                        int read = NetworkStream.Read(buffer, 0, buffer.Length);
+                        if (read == 0)
+                        {
+                            Console.WriteLine("Error");
+                            return;
+                        }
 
+                        memoryStream.Write(buffer, 0, read);
+
+                        readSize -= read;
+
+                    } while (readSize > 0);
+
+
+                }
 
                 if (memoryStream.Length > 0)
                 {
@@ -144,52 +201,49 @@ namespace LoggerServer
                         //Send 
                         byte[] res = Serializer.ToByteArray(packetV2);
 
-                        ms.Write(res, 0, res.Length);
+                        NetworkStream.Write(res, 0, res.Length);
 
-                        ms.Flush();
-
-                        //Latenz usw network
-                        Thread.Sleep(1500);
+                        NetworkStream.Flush();
 
                         tcpClient.Close();
-                        break;
+                        return;
                     }
 
                     if (packet.Command == PacketV2.Commands.GetFileContent)
                     {
-                        List<string>files = FileManager.GetXmlFiles.ToList();
+                        List<string> files = FileManager.GetXmlFiles.ToList();
                         byte[] res;
 
                         PacketV2 packetV2 = new PacketV2();
                         packetV2.Command = PacketV2.Commands.FileContent;
-                        
+
                         //Check if user wants really the log file or system file
-                        if (packet.Data.Length < 1 && files.Exists( x => x == packet.Data[0]) == false)
+                        if (packet.Data.Length < 1 && files.Exists(x => x == packet.Data[0]) == false)
                         {
                             LoggerSystem.Logger.Information($"File not found: {packet.Data[0]}");
 
                             res = Serializer.ToByteArray(packetV2);
 
-                            ms.Write(res, 0, res.Length);
-                            ms.Flush();
+                            NetworkStream.Write(res, 0, res.Length);
+                            NetworkStream.Flush();
 
                             //Latenz usw network
                             Thread.Sleep(500);
                             tcpClient.Close();
-                            break;
+                            return;
                         }
-                        
+
                         packetV2.Data = File.ReadLines(packet.Data[0]).ToArray();
-                       
+
                         //Send 
                         res = Serializer.ToByteArray(packetV2);
                         LoggerSystem.Logger.Information($"Try Send File lines: {packetV2.Data.Length}");
-                        ms.Write(res, 0, res.Length);
-                        ms.Flush();
+                        NetworkStream.Write(res, 0, res.Length);
+                        NetworkStream.Flush();
                         LoggerSystem.Logger.Information($"Send File lines: {packetV2.Data.Length}");
                         Thread.Sleep(500);
                         tcpClient.Close();
-                        break;
+                        return;
                     }
 
 
@@ -225,10 +279,8 @@ namespace LoggerServer
                     Console.WriteLine("System: Empty data");
                     tcpClient.Close();
                 }
-
             }
-
-            return Task.CompletedTask;
+            return;
         }
 
         public void Dispose()

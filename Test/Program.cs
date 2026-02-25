@@ -14,7 +14,7 @@ namespace Test
             while (true)
             { 
 
-                LoggerSystem.Logger.Log("Test23");
+                LoggerSystem.Logger.Log("TEST");
                 if (Console.ReadKey().Key == ConsoleKey.Enter)
                 {
                     continue;
