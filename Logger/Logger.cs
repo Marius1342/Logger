@@ -254,8 +254,14 @@ namespace LoggerSystem
                     
                 }
                 }
-
-            FileManager.Dispose();
+            try
+            {
+                FileManager.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("FileManager was never init");
+            }
         }
     }
 }
